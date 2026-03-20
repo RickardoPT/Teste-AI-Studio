@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: #050505; /* Deep cinematic black */
+  --color-foreground: #f5f5f5;
+  
+  --color-primary: #e11d48; /* Crimson Red - Classic Cinema Vibe */
+  --color-primary-foreground: #ffffff;
+  
+  --color-secondary: #be123c; /* Darker Red */
+  --color-secondary-foreground: #ffffff;
+
+  --color-accent: #fb7185; /* Light Red accent */
+  --color-accent-foreground: #1a1a1a;
+
+  --color-muted: #1f1f22;
+  --color-muted-foreground: #a1a1aa;
+
+  --color-card: #0f0f11;
+  --color-card-foreground: #f5f5f5;
+
+  --color-border: #27272a;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}

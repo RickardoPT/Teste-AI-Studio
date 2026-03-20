@@ -1,0 +1,5 @@
+{
+  "name": "MoodFlix",
+  "description": "A modern, playful dark-themed platform to discover movies and series based on your current mood, powered by AI.",
+  "requestFramePermissions": []
+}
