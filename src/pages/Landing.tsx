@@ -284,106 +284,43 @@ export default function Landing() {
                   whileInView={{ opacity: 1, rotateY: 0, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.7, ease: "easeOut" }}
-                  className="relative z-10 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] max-w-lg mx-auto transform-gpu"
+                  className="relative z-10 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl p-2 sm:p-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] max-w-2xl mx-auto transform-gpu overflow-hidden"
                 >
                   {/* App Window Controls */}
-                  <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
+                  <div className="flex items-center justify-between mb-4 px-4 pt-2">
                     <div className="flex gap-2">
                       <div className="w-3 h-3 rounded-full bg-red-500/80" />
                       <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
                       <div className="w-3 h-3 rounded-full bg-green-500/80" />
                     </div>
-                    <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest">MoodFlix AI Engine</div>
+                    <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest">MoodFlix Demo</div>
                   </div>
 
-                  <div className="flex flex-col gap-6 min-h-[380px] relative">
-                    {/* Step 0: User Prompt */}
-                    <AnimatePresence>
-                      <motion.div
-                        key="prompt"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="self-end bg-white/5 border border-white/10 p-4 rounded-2xl rounded-tr-sm shadow-lg w-[90%] flex gap-3 relative overflow-hidden"
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-50" />
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-1 relative z-10">
-                          <User className="w-4 h-4 text-primary" />
-                        </div>
-                        <p className="text-sm text-white/90 leading-relaxed relative z-10">
-                          "Estou num dia de chuva, quero algo relaxante e visualmente incrível..." 🌧️
-                        </p>
-                      </motion.div>
-                    </AnimatePresence>
-
-                    {/* Step 1: AI Processing / Result */}
-                    <AnimatePresence>
-                      {activeStep >= 1 && (
-                        <motion.div
-                          key="result"
-                          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          transition={{ type: "spring", bounce: 0.4 }}
-                          className="self-start bg-card/90 backdrop-blur-xl border border-primary/30 p-4 rounded-2xl shadow-[0_15px_40px_rgba(225,29,72,0.2)] w-[95%] flex gap-4 items-center relative overflow-hidden group"
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                          
-                          <div className="w-24 h-36 bg-muted rounded-xl overflow-hidden flex-shrink-0 relative shadow-md border border-white/5">
-                            <img src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=200&h=300&fit=crop" alt="Interstellar" className="w-full h-full object-cover" />
-                          </div>
-                          <div className="flex flex-col relative z-10">
-                            <div className="flex items-center gap-1.5 mb-2">
-                              <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
-                              <span className="text-xs font-bold text-yellow-500">8.6</span>
-                              <span className="text-[10px] text-muted-foreground ml-1">• Sci-Fi</span>
-                            </div>
-                            <h4 className="font-display font-bold text-xl leading-tight mb-2 text-white">Interstellar</h4>
-                            <p className="text-xs text-muted-foreground line-clamp-2 mb-4 leading-relaxed">Uma jornada visualmente deslumbrante pelo espaço e pelo tempo.</p>
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-wider w-fit border border-primary/30">
-                              <Sparkles className="w-3 h-3" /> Match Perfeito
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {/* Step 2: Streaming Action Mockup */}
-                    <AnimatePresence>
-                      {activeStep >= 2 && (
-                        <motion.div
-                          key="streaming"
-                          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          transition={{ type: "spring", bounce: 0.4, delay: 0.2 }}
-                          className="self-end bg-black/60 backdrop-blur-md border border-white/10 p-3.5 rounded-2xl shadow-xl flex items-center gap-5 -mt-4 relative z-20 mr-2"
-                        >
-                          <div className="flex flex-col">
-                            <span className="text-[10px] text-white/50 font-medium mb-1.5 uppercase tracking-wider">Disponível em</span>
-                            <div className="flex gap-2">
-                              <div className="w-8 h-8 rounded-lg bg-[#E50914] flex items-center justify-center text-[11px] font-bold text-white shadow-md">N</div>
-                              <div className="w-8 h-8 rounded-lg bg-[#002BE7] flex items-center justify-center text-[9px] font-bold text-white shadow-md">MAX</div>
-                            </div>
-                          </div>
-                          <div className="w-px h-10 bg-white/10" />
-                          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-[0_0_20px_rgba(225,29,72,0.5)] hover:scale-105 transition-transform cursor-pointer">
-                            <PlayCircle className="w-6 h-6 ml-0.5" />
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                  {/* Video Container */}
+                  <div className="relative rounded-xl overflow-hidden bg-muted/20 aspect-video border border-white/5 group">
+                    {/* Placeholder Video - Substitui o 'src' pelo teu screen recording real */}
+                    <video 
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+                      autoPlay 
+                      loop 
+                      muted 
+                      playsInline
+                      poster="https://images.unsplash.com/photo-1616530940355-351fabd9524b?q=80&w=1000&auto=format&fit=crop"
+                    >
+                      {/* Exemplo de vídeo placeholder. Coloca aqui o URL do teu vídeo (ex: /demo.mp4) */}
+                      <source src="https://cdn.pixabay.com/video/2020/05/25/40130-424915152_large.mp4" type="video/mp4" />
+                      O teu browser não suporta vídeos HTML5.
+                    </video>
                     
-                    {/* Loading Indicator for Step 0 */}
-                    <AnimatePresence>
-                      {activeStep === 0 && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="absolute bottom-4 left-4 flex items-center gap-2 text-primary/80 text-sm font-medium bg-primary/10 px-4 py-2 rounded-full border border-primary/20"
-                        >
-                          <Loader2 className="w-4 h-4 animate-spin" /> A analisar o teu mood...
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {/* Overlay gradient for better blending */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent pointer-events-none" />
+                    
+                    {/* Play indicator (visual only, since it autoplays) */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <div className="w-16 h-16 rounded-full bg-primary/20 backdrop-blur-md flex items-center justify-center border border-primary/30">
+                        <PlayCircle className="w-8 h-8 text-primary" />
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               </div>

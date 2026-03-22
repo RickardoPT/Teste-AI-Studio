@@ -6,8 +6,9 @@ import { enrichWithTMDB } from "@/src/services/tmdb";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/src/components/ui/card";
-import { Sparkles, Film, Tv, History, LogOut, Loader2, Check, Users, MessageSquare, ListPlus, UserPlus, Star, PlayCircle, Info, X, Calendar, MonitorPlay, User, Clapperboard, Filter, Trash2, Clock, CalendarDays, CheckCircle2 } from "lucide-react";
+import { Sparkles, Film, Tv, History, LogOut, Loader2, Check, Users, MessageSquare, ListPlus, UserPlus, Star, PlayCircle, Info, X, Calendar, MonitorPlay, User, Clapperboard, Filter, Trash2, Clock, CalendarDays, CheckCircle2, Search, Settings, ChevronDown, FileText, Shield, Bell, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 const QUICK_MOODS = [
   { emoji: "☀️", label: "Feliz", prompt: "I'm feeling happy and want something uplifting, joyful, and fun." },
@@ -30,8 +31,12 @@ export default function Dashboard() {
   const [userRatings, setUserRatings] = useState<Record<string, number>>({});
   const [userComments, setUserComments] = useState<Record<string, string>>({});
   const [commentInput, setCommentInput] = useState("");
-  const [commentSaved, setCommentSaved] = useState(false);
   const [historySort, setHistorySort] = useState<"recent" | "rating-high" | "rating-low">("recent");
+  const [historySearch, setHistorySearch] = useState("");
+  const [historyTypeFilter, setHistoryTypeFilter] = useState<"all" | "movie" | "series">("all");
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
 
   useEffect(() => {
@@ -70,6 +75,7 @@ export default function Dashboard() {
     if (!searchMood.trim()) return;
 
     setLoading(true);
+    setRecommendations([]);
     try {
       const historyContext = history.slice(0, 15).map(h => ({
         title: h.title,
@@ -105,6 +111,9 @@ export default function Dashboard() {
     const newHistory = [movieWithDate, ...history.filter(h => h.title !== movie.title)];
     setHistory(newHistory);
     localStorage.setItem('moodflix_history', JSON.stringify(newHistory));
+    if (!existing) {
+      toast.success(`${movie.title} adicionado ao histórico!`);
+    }
   };
 
   const handleRemoveFromHistory = (e: React.MouseEvent, title: string) => {
@@ -112,6 +121,7 @@ export default function Dashboard() {
     const newHistory = history.filter(h => h.title !== title);
     setHistory(newHistory);
     localStorage.setItem('moodflix_history', JSON.stringify(newHistory));
+    toast.info(`${title} removido do histórico.`);
   };
 
   const handleRate = (title: string, rating: number) => {
@@ -123,6 +133,7 @@ export default function Dashboard() {
     if (!history.some(h => h.title === title) && selectedMovie) {
       addToHistory(selectedMovie);
     }
+    toast.success(`Avaliaste ${title} com ${rating} estrelas!`);
   };
 
   const handleSaveComment = (title: string) => {
@@ -135,8 +146,7 @@ export default function Dashboard() {
       addToHistory(selectedMovie);
     }
 
-    setCommentSaved(true);
-    setTimeout(() => setCommentSaved(false), 2000);
+    toast.success("Comentário guardado com sucesso!");
   };
 
   const handleDeleteComment = (title: string) => {
@@ -145,17 +155,24 @@ export default function Dashboard() {
     setUserComments(newComments);
     setCommentInput("");
     localStorage.setItem('moodflix_comments', JSON.stringify(newComments));
+    toast.info("Comentário apagado.");
   };
 
-  const sortedHistory = [...history].sort((a, b) => {
-    if (historySort === "rating-high") {
-      return (userRatings[b.title] || 0) - (userRatings[a.title] || 0);
-    }
-    if (historySort === "rating-low") {
-      return (userRatings[a.title] || 0) - (userRatings[b.title] || 0);
-    }
-    return 0;
-  });
+  const sortedHistory = [...history]
+    .filter(movie => {
+      const matchesSearch = movie.title.toLowerCase().includes(historySearch.toLowerCase());
+      const matchesType = historyTypeFilter === "all" || movie.type === historyTypeFilter;
+      return matchesSearch && matchesType;
+    })
+    .sort((a, b) => {
+      if (historySort === "rating-high") {
+        return (userRatings[b.title] || 0) - (userRatings[a.title] || 0);
+      }
+      if (historySort === "rating-low") {
+        return (userRatings[a.title] || 0) - (userRatings[b.title] || 0);
+      }
+      return 0;
+    });
 
   if (!user) return null;
 
@@ -194,19 +211,71 @@ export default function Dashboard() {
             </button>
             <button 
               onClick={() => setActiveTab("community")}
-              className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-1 ${activeTab === "community" ? "text-primary" : "text-muted-foreground"}`}
+              className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-1.5 ${activeTab === "community" ? "text-primary" : "text-muted-foreground"}`}
             >
               Comunidade
+              <span className="px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-primary text-[9px] font-bold uppercase tracking-wider">Novo</span>
             </button>
           </nav>
 
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground hidden sm:inline-block">
-              Olá, {user.name}
-            </span>
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="rounded-full hover:bg-muted">
-              <LogOut className="w-4 h-4" />
-            </Button>
+          <div className="flex items-center gap-4 relative">
+            <button 
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="flex items-center gap-2 hover:bg-muted/50 p-1.5 pr-3 rounded-full transition-colors border border-transparent hover:border-border"
+            >
+              <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-sm">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-sm font-medium hidden sm:inline-block">
+                {user.name}
+              </span>
+              <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+            </button>
+
+            <AnimatePresence>
+              {isProfileOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsProfileOpen(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-56 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden"
+                  >
+                    <div className="p-4 border-b border-border/50 bg-muted/20">
+                      <p className="font-medium text-sm truncate">{user.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                    <div className="p-2">
+                      <button 
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          setIsSettingsOpen(true);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+                      >
+                        <Settings className="w-4 h-4" />
+                        Definições
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          handleLogout();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-md transition-colors mt-1"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Terminar Sessão
+                      </button>
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </header>
@@ -230,9 +299,10 @@ export default function Dashboard() {
           </button>
           <button 
             onClick={() => setActiveTab("community")}
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${activeTab === "community" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-lg transition-all whitespace-nowrap flex items-center justify-center gap-1.5 ${activeTab === "community" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}
           >
             Comunidade
+            <span className="px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-primary text-[9px] font-bold uppercase tracking-wider">Novo</span>
           </button>
         </div>
 
@@ -323,7 +393,36 @@ export default function Dashboard() {
               </section>
 
               {/* Results Section */}
-              {recommendations.length > 0 && (
+              {loading ? (
+                <section className="space-y-6">
+                  <h2 className="text-2xl font-display font-semibold flex items-center gap-2">
+                    <Loader2 className="w-5 h-5 text-secondary animate-spin" />
+                    A procurar a combinação perfeita...
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[1, 2, 3, 4].map((i) => (
+                      <Card key={i} className="h-full flex flex-col md:flex-row bg-card/50 border-border/50 overflow-hidden">
+                        <div className="w-full md:w-2/5 aspect-[2/3] md:aspect-auto bg-muted animate-pulse" />
+                        <div className="flex flex-col flex-1 p-5 space-y-4">
+                          <div className="space-y-2">
+                            <div className="h-6 bg-muted rounded animate-pulse w-3/4" />
+                            <div className="h-4 bg-muted rounded animate-pulse w-1/4" />
+                          </div>
+                          <div className="space-y-2 flex-1">
+                            <div className="h-4 bg-muted rounded animate-pulse w-full" />
+                            <div className="h-4 bg-muted rounded animate-pulse w-full" />
+                            <div className="h-4 bg-muted rounded animate-pulse w-5/6" />
+                          </div>
+                          <div className="flex gap-2 pt-4">
+                            <div className="h-10 bg-muted rounded animate-pulse flex-1" />
+                            <div className="h-10 bg-muted rounded animate-pulse flex-1" />
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </section>
+              ) : recommendations.length > 0 && (
                 <section className="space-y-6">
                   <h2 className="text-2xl font-display font-semibold flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-secondary" />
@@ -411,14 +510,25 @@ export default function Dashboard() {
                                 <span className="text-xs font-medium text-muted-foreground mb-2 block">Onde ver:</span>
                                 <div className="flex items-center gap-2">
                                   {rec.providers.map((p, i) => (
-                                    <img 
+                                    <a 
                                       key={i} 
-                                      src={p.logoUrl} 
-                                      alt={p.name} 
-                                      title={p.name}
-                                      className="w-8 h-8 rounded-md object-cover border border-border/50"
-                                      referrerPolicy="no-referrer"
-                                    />
+                                      href={p.link || "#"} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="transition-transform hover:scale-110"
+                                      title={`Ver na ${p.name}`}
+                                      onClick={(e) => {
+                                        if (!p.link) e.preventDefault();
+                                        e.stopPropagation();
+                                      }}
+                                    >
+                                      <img 
+                                        src={p.logoUrl} 
+                                        alt={p.name} 
+                                        className="w-8 h-8 rounded-md object-cover border border-border/50"
+                                        referrerPolicy="no-referrer"
+                                      />
+                                    </a>
                                   ))}
                                 </div>
                               </div>
@@ -469,22 +579,53 @@ export default function Dashboard() {
                 <div className="flex items-center gap-3">
                   <h2 className="text-3xl font-display font-bold">O Teu Histórico</h2>
                   <span className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
-                    {history.length} {history.length === 1 ? 'Título' : 'Títulos'}
+                    {sortedHistory.length} {sortedHistory.length === 1 ? 'Título' : 'Títulos'}
                   </span>
                 </div>
                 
                 {history.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-muted-foreground" />
-                    <select 
-                      className="bg-card border border-border/50 text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                      value={historySort}
-                      onChange={(e) => setHistorySort(e.target.value as any)}
-                    >
-                      <option value="recent">Mais Recentes</option>
-                      <option value="rating-high">Melhor Avaliação</option>
-                      <option value="rating-low">Pior Avaliação</option>
-                    </select>
+                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    <div className="relative w-full sm:w-64">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input 
+                        type="text"
+                        placeholder="Pesquisar no histórico..."
+                        value={historySearch}
+                        onChange={(e) => setHistorySearch(e.target.value)}
+                        className="w-full bg-card border border-border/50 text-sm rounded-full pl-9 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                      />
+                    </div>
+                    
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <div className="flex bg-muted/50 p-1 rounded-lg border border-border/50">
+                        {(["all", "movie", "series"] as const).map((type) => (
+                          <button
+                            key={type}
+                            onClick={() => setHistoryTypeFilter(type)}
+                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                              historyTypeFilter === type
+                                ? "bg-background shadow-sm text-foreground"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {type === "all" ? "Todos" : type === "movie" ? "Filmes" : "Séries"}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-2 bg-card border border-border/50 rounded-lg px-2 py-1">
+                        <Filter className="w-4 h-4 text-muted-foreground" />
+                        <select 
+                          className="bg-transparent text-sm focus:outline-none focus:ring-0 py-1"
+                          value={historySort}
+                          onChange={(e) => setHistorySort(e.target.value as any)}
+                        >
+                          <option value="recent">Mais Recentes</option>
+                          <option value="rating-high">Melhor Avaliação</option>
+                          <option value="rating-low">Pior Avaliação</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -813,10 +954,19 @@ export default function Dashboard() {
                             <h3 className="text-lg sm:text-xl font-display font-semibold mb-3 sm:mb-4 text-foreground/90">Onde Assistir (Portugal)</h3>
                             <div className="flex flex-wrap justify-center md:justify-start gap-3">
                               {selectedMovie.providers.map(p => (
-                                <div key={p.name} className="flex items-center gap-3 bg-card border border-border/50 rounded-2xl p-2 pr-4 sm:pr-5 hover:border-primary/50 transition-colors">
+                                <a 
+                                  key={p.name} 
+                                  href={p.link || "#"} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-3 bg-card border border-border/50 rounded-2xl p-2 pr-4 sm:pr-5 hover:border-primary/50 hover:bg-primary/5 transition-all hover:-translate-y-1"
+                                  onClick={(e) => {
+                                    if (!p.link) e.preventDefault();
+                                  }}
+                                >
                                   <img src={p.logoUrl} alt={p.name} className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl shadow-sm" />
                                   <span className="text-xs sm:text-sm font-medium">{p.name}</span>
-                                </div>
+                                </a>
                               ))}
                             </div>
                           </div>
@@ -896,15 +1046,6 @@ export default function Dashboard() {
                                 </div>
                               </div>
                             )}
-                            {commentSaved && (
-                              <motion.p 
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="text-green-500 text-sm mt-3 font-medium flex items-center gap-1.5"
-                              >
-                                <CheckCircle2 className="w-4 h-4" /> Comentário guardado com sucesso!
-                              </motion.p>
-                            )}
                           </div>
                         </div>
 
@@ -932,6 +1073,225 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Settings Modal */}
+        <AnimatePresence>
+          {isSettingsOpen && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+                onClick={() => setIsSettingsOpen(false)}
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-lg bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+              >
+                <div className="flex items-center justify-between p-6 border-b border-border/50">
+                  <h2 className="text-2xl font-display font-bold flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-primary" />
+                    Definições
+                  </h2>
+                  <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(false)} className="rounded-full hover:bg-muted">
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+                
+                <div className="p-6 overflow-y-auto space-y-8">
+                  {/* Perfil */}
+                  <section className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Perfil</h3>
+                    <div className="flex items-center gap-4 bg-muted/30 p-4 rounded-xl border border-border/50">
+                      <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xl">
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{user.name}</p>
+                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Preferências */}
+                  <section className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Preferências</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <Bell className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Notificações</span>
+                        </div>
+                        <div className="w-10 h-5 bg-primary rounded-full relative cursor-pointer">
+                          <div className="absolute right-1 top-1 w-3 h-3 bg-white rounded-full" />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <Moon className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Tema Escuro</span>
+                        </div>
+                        <div className="w-10 h-5 bg-primary rounded-full relative cursor-pointer">
+                          <div className="absolute right-1 top-1 w-3 h-3 bg-white rounded-full" />
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Legal */}
+                  <section className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Legal & Suporte</h3>
+                    <div className="space-y-2">
+                      <button 
+                        onClick={() => {
+                          setIsSettingsOpen(false);
+                          setIsTermsOpen(true);
+                        }}
+                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors text-left"
+                      >
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Termos e Serviços</span>
+                        </div>
+                      </button>
+                      <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors text-left">
+                        <div className="flex items-center gap-3">
+                          <Shield className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Política de Privacidade</span>
+                        </div>
+                      </button>
+                    </div>
+                  </section>
+
+                  {/* Danger Zone */}
+                  <section className="space-y-4 pt-4 border-t border-border/50">
+                    <button 
+                      onClick={() => {
+                        toast.error("Ação não disponível na versão de demonstração.");
+                      }}
+                      className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors text-sm font-medium"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Apagar Conta
+                    </button>
+                  </section>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Terms Modal */}
+        <AnimatePresence>
+          {isTermsOpen && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+                onClick={() => setIsTermsOpen(false)}
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-3xl bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+              >
+                <div className="flex items-center justify-between p-6 border-b border-border/50 bg-muted/20">
+                  <h2 className="text-2xl font-display font-bold flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-primary" />
+                    Termos e Serviços
+                  </h2>
+                  <Button variant="ghost" size="icon" onClick={() => setIsTermsOpen(false)} className="rounded-full hover:bg-muted">
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+                
+                <div className="p-6 md:p-8 overflow-y-auto space-y-8 text-sm text-foreground/80 leading-relaxed">
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">1. Aceitação dos Termos</h3>
+                    <p>
+                      Ao aceder e utilizar o MoodFlix ("Plataforma", "Nós", "Nosso"), o utilizador concorda em ficar vinculado aos presentes Termos e Serviços. Se não concordar com alguma parte destes termos, não deverá utilizar o nosso serviço. O MoodFlix é uma plataforma de recomendação de filmes e séries baseada em Inteligência Artificial.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">2. Descrição do Serviço e Uso de IA</h3>
+                    <p>
+                      O MoodFlix utiliza modelos avançados de Inteligência Artificial (incluindo, mas não limitado a, Google Gemini) para analisar o estado de espírito ("mood") do utilizador e sugerir conteúdo audiovisual relevante.
+                    </p>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      <li>As recomendações são geradas de forma algorítmica e não garantimos a precisão, adequação ou qualidade do conteúdo sugerido.</li>
+                      <li>O utilizador compreende que a IA pode, ocasionalmente, gerar resultados inesperados ou imprecisos (alucinações).</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">3. Contas de Utilizador e Dados</h3>
+                    <p>
+                      Para utilizar funcionalidades como o "Histórico", "Avaliações" e "Comentários", é necessário criar uma conta.
+                    </p>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      <li>O utilizador é responsável por manter a confidencialidade das suas credenciais.</li>
+                      <li>Os dados de histórico e avaliações são armazenados para personalizar futuras recomendações.</li>
+                      <li>Reservamo-nos o direito de suspender ou encerrar contas que violem estes termos ou apresentem comportamento abusivo.</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">4. Propriedade Intelectual e Dados de Terceiros</h3>
+                    <p>
+                      O MoodFlix atua como um agregador e motor de recomendação. Não alojamos filmes nem séries.
+                    </p>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      <li><strong>TMDB:</strong> Os metadados de filmes e séries (títulos, sinopses, posters, elencos) são fornecidos pela API do The Movie Database (TMDB). O MoodFlix usa a API do TMDB mas não é endossado nem certificado pelo TMDB.</li>
+                      <li><strong>YouTube:</strong> Os links para trailers redirecionam para o YouTube. O conteúdo dos trailers é propriedade dos respetivos estúdios e distribuidores.</li>
+                      <li><strong>Plataformas de Streaming:</strong> Os logótipos e links para plataformas de streaming (Netflix, HBO, etc.) são propriedade das respetivas empresas.</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">5. Monetização e Links de Afiliados</h3>
+                    <p>
+                      Embora o MoodFlix seja disponibilizado gratuitamente aos utilizadores, a plataforma pode gerar receita através de:
+                    </p>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      <li><strong>Programas de Afiliados:</strong> Alguns links que redirecionam para plataformas de streaming ou lojas digitais (ex: Amazon Prime, Apple TV) podem conter códigos de afiliado. Se o utilizador subscrever ou alugar um filme através desses links, o MoodFlix poderá receber uma pequena comissão, sem qualquer custo adicional para o utilizador.</li>
+                      <li><strong>Publicidade e Parcerias:</strong> Podemos exibir conteúdo patrocinado ou recomendações em destaque, que serão sempre devidamente identificadas como tal.</li>
+                      <li><strong>Funcionalidades Premium:</strong> No futuro, poderão ser introduzidas funcionalidades exclusivas (ex: filtros avançados, listas ilimitadas) mediante subscrição paga, mantendo a experiência base gratuita.</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">6. Limitação de Responsabilidade</h3>
+                    <p>
+                      O MoodFlix é fornecido "tal como está". Não nos responsabilizamos por:
+                    </p>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      <li>Indisponibilidade temporária do serviço devido a manutenção ou falhas de APIs de terceiros (TMDB, Gemini).</li>
+                      <li>Qualquer conteúdo ofensivo ou inadequado que possa ser sugerido pela IA ou estar presente nos filmes/séries recomendados.</li>
+                      <li>Alterações nos catálogos das plataformas de streaming (um filme sugerido pode já não estar disponível na Netflix, por exemplo).</li>
+                    </ul>
+                  </div>
+
+                  <div className="pt-4 border-t border-border/50 text-xs text-muted-foreground">
+                    Última atualização: Março de 2026. Para dúvidas, contacte suporte@moodflix.app
+                  </div>
+                </div>
+                
+                <div className="p-6 border-t border-border/50 bg-muted/10 flex justify-end">
+                  <Button onClick={() => setIsTermsOpen(false)} className="rounded-full px-8">
+                    Compreendi e Aceito
+                  </Button>
                 </div>
               </motion.div>
             </div>

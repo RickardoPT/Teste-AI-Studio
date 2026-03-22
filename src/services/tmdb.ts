@@ -1,6 +1,7 @@
 export interface TMDBProvider {
   name: string;
   logoUrl: string;
+  link?: string;
 }
 
 export async function enrichWithTMDB(movie: any) {
@@ -50,10 +51,16 @@ export async function enrichWithTMDB(movie: any) {
     const director = detailsData.credits?.crew?.find((c: any) => c.job === 'Director')?.name;
 
     // 3. Get Watch Providers (Where to watch)
-    const ptProviders = detailsData['watch/providers']?.results?.PT?.flatrate || detailsData['watch/providers']?.results?.US?.flatrate || [];
+    const ptProvidersData = detailsData['watch/providers']?.results?.PT;
+    const usProvidersData = detailsData['watch/providers']?.results?.US;
+    
+    const ptProviders = ptProvidersData?.flatrate || usProvidersData?.flatrate || [];
+    const providerLink = ptProvidersData?.link || usProvidersData?.link || `https://www.themoviedb.org/${type}/${id}/watch`;
+
     const providers = ptProviders.slice(0, 3).map((p: any) => ({
       name: p.provider_name,
-      logoUrl: `https://image.tmdb.org/t/p/w200${p.logo_path}`
+      logoUrl: `https://image.tmdb.org/t/p/w200${p.logo_path}`,
+      link: providerLink
     }));
 
     return { 
