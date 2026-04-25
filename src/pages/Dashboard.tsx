@@ -38,7 +38,7 @@ export default function Dashboard() {
   const [recommendations, setRecommendations] = useState<MovieRecommendation[]>([]);
   const [history, setHistory] = useState<MovieRecommendation[]>([]);
   const [watchlist, setWatchlist] = useState<MovieRecommendation[]>([]);
-  const [activeTab, setActiveTab] = useState<"discover" | "history" | "watchlist" | "community">("discover");
+  const [activeTab, setActiveTab] = useState<"discover" | "history" | "watchlist">("discover");
 
   const addToWatchlist = async (movie: MovieRecommendation) => {
     const existing = watchlist.find(w => w.title === movie.title);
@@ -414,13 +414,6 @@ export default function Dashboard() {
             >
               Watchlist
             </button>
-            <button 
-              onClick={() => setActiveTab("community")}
-              className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-1.5 ${activeTab === "community" ? "text-primary" : "text-muted-foreground"}`}
-            >
-              Comunidade
-              <span className="px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-primary text-[9px] font-bold uppercase tracking-wider">Novo</span>
-            </button>
           </nav>
 
           <div className="flex items-center gap-4 relative">
@@ -597,13 +590,6 @@ export default function Dashboard() {
           >
             Watchlist
           </button>
-          <button 
-            onClick={() => setActiveTab("community")}
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-lg transition-all whitespace-nowrap flex items-center justify-center gap-1.5 ${activeTab === "community" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}
-          >
-            Comunidade
-            <span className="px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-primary text-[9px] font-bold uppercase tracking-wider">Novo</span>
-          </button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -644,7 +630,7 @@ export default function Dashboard() {
                         }}
                         className={`px-4 py-2 rounded-full border transition-all duration-300 text-sm font-medium flex items-center gap-2 shadow-sm ${
                           isActive 
-                            ? "bg-primary text-primary-foreground border-primary shadow-[0_0_15px_rgba(249,115,22,0.4)]" 
+                            ? "bg-primary text-primary-foreground border-primary shadow-[0_0_15px_rgba(225,29,72,0.4)]" 
                             : "bg-card border-border/50 hover:border-primary/50 hover:bg-primary/10 text-foreground"
                         }`}
                       >
@@ -703,7 +689,7 @@ export default function Dashboard() {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full left-0 right-0 mt-2 bg-card border border-border/50 rounded-2xl shadow-xl overflow-hidden z-50"
+                        className="absolute top-full left-0 right-0 mt-2 bg-card border border-border/50 rounded-2xl shadow-xl overflow-hidden z-[60] text-left"
                       >
                         <div className="p-2">
                           {!mood.trim() && searchHistory.length > 0 && (
@@ -715,7 +701,8 @@ export default function Dashboard() {
                                 <button
                                   key={i}
                                   type="button"
-                                  onClick={() => {
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
                                     setMood(h);
                                     setShowSuggestions(false);
                                     handleGetRecommendations(undefined, h);
@@ -738,7 +725,8 @@ export default function Dashboard() {
                                 <button
                                   key={i}
                                   type="button"
-                                  onClick={() => {
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
                                     const words = mood.split(' ');
                                     words.pop();
                                     const newMood = words.length > 0 ? `${words.join(' ')} ${k} ` : `${k} `;
@@ -756,7 +744,8 @@ export default function Dashboard() {
                                 <button
                                   key={i}
                                   type="button"
-                                  onClick={() => {
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
                                     setMood(prev => prev.endsWith(' ') ? prev + k + ' ' : prev + ' ' + k + ' ');
                                     inputRef.current?.focus();
                                   }}
@@ -886,7 +875,7 @@ export default function Dashboard() {
                         key={index}
                         className="h-full"
                       >
-                        <Card className="h-full flex flex-col md:flex-row bg-card/50 border-border/50 hover:border-primary/60 transition-all duration-400 group hover:shadow-[0_15px_40px_rgba(249,115,22,0.25)] overflow-hidden relative">
+                        <Card className="h-full flex flex-col md:flex-row bg-card/50 border-border/50 hover:border-primary/60 transition-all duration-400 group hover:shadow-[0_15px_40px_rgba(225,29,72,0.25)] overflow-hidden relative">
                           {/* Hover Glow Effect */}
                           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                           {/* Poster Section */}
@@ -985,7 +974,7 @@ export default function Dashboard() {
                             <div className="mt-4 pt-4 flex flex-col sm:flex-row gap-3">
                               <Button 
                                 variant="default" 
-                                className="w-full sm:w-1/3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(249,115,22,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full sm:w-1/3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(225,29,72,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
                                 onClick={() => setSelectedMovie(rec)}
                                 disabled={rec.posterUrl === undefined}
                               >
@@ -1438,84 +1427,6 @@ export default function Dashboard() {
               )}
             </motion.div>
           )}
-
-          {activeTab === "community" && (
-            <motion.div
-              key="community"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-8 py-6"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/50 pb-6">
-                <div>
-                  <h2 className="text-3xl font-display font-bold mb-2">Comunidade</h2>
-                  <p className="text-muted-foreground">Conecta-te com outros cinéfilos e partilha as tuas vibes.</p>
-                </div>
-                <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider">
-                  <Sparkles className="w-4 h-4" />
-                  Em Desenvolvimento
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Feature 1 */}
-                <Card className="bg-card/40 border-border/50 relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <CardHeader>
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                      <MessageSquare className="w-6 h-6 text-primary" />
-                    </div>
-                    <CardTitle>Fóruns por Mood</CardTitle>
-                    <CardDescription>Discute filmes e séries em salas categorizadas por géneros e emoções.</CardDescription>
-                  </CardHeader>
-                </Card>
-
-                {/* Feature 2 */}
-                <Card className="bg-card/40 border-border/50 relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <CardHeader>
-                    <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center mb-4">
-                      <ListPlus className="w-6 h-6 text-secondary" />
-                    </div>
-                    <CardTitle>Listas Curadas</CardTitle>
-                    <CardDescription>Cria e partilha as tuas próprias listas (ex: "Filmes para dias de chuva").</CardDescription>
-                  </CardHeader>
-                </Card>
-
-                {/* Feature 3 */}
-                <Card className="bg-card/40 border-border/50 relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <CardHeader>
-                    <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center mb-4">
-                      <UserPlus className="w-6 h-6 text-accent" />
-                    </div>
-                    <CardTitle>Seguir Utilizadores</CardTitle>
-                    <CardDescription>Acompanha o que os teus amigos estão a ver e descobre novas recomendações.</CardDescription>
-                  </CardHeader>
-                </Card>
-              </div>
-
-              {/* Mock Feed Preview */}
-              <div className="mt-12 opacity-50 pointer-events-none select-none">
-                <h3 className="text-xl font-display font-semibold mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5" /> Feed Recente (Preview)
-                </h3>
-                <div className="space-y-4">
-                  {[1, 2].map((i) => (
-                    <div key={i} className="p-4 rounded-2xl border border-border/50 bg-card/20 flex gap-4">
-                      <div className="w-10 h-10 rounded-full bg-muted flex-shrink-0" />
-                      <div>
-                        <p className="text-sm"><span className="font-medium text-foreground">User{i}</span> adicionou <strong>Interstellar</strong> à lista "Mind-blowing Sci-Fi"</p>
-                        <p className="text-xs text-muted-foreground mt-1">Há 2 horas</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
         </AnimatePresence>
 
         {/* Onboarding Modal */}
@@ -1648,9 +1559,9 @@ export default function Dashboard() {
                   </div>
 
                   {/* Content */}
-                  <div className="relative px-4 sm:px-8 md:px-10 pb-10 -mt-20 sm:-mt-32 md:-mt-40 lg:-mt-48 flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start">
+                  <div className="relative px-4 sm:px-8 md:px-10 pb-10 -mt-20 sm:-mt-32 md:-mt-40 lg:-mt-48 flex flex-col md:flex-row gap-6 md:gap-8 md:items-start">
                     {/* Poster */}
-                    <div className="w-32 sm:w-40 md:w-56 lg:w-72 flex-shrink-0 rounded-xl md:rounded-2xl overflow-hidden border border-foreground/10 shadow-2xl bg-muted z-10">
+                    <div className="w-32 sm:w-40 md:w-56 lg:w-72 flex-shrink-0 rounded-xl md:rounded-2xl overflow-hidden border border-border/50 shadow-2xl bg-muted z-10 mx-auto md:mx-0">
                       {selectedMovie.posterUrl ? (
                         <img src={selectedMovie.posterUrl} loading="lazy" decoding="async" className="w-full h-auto object-cover" alt={selectedMovie.title} />
                       ) : (
@@ -1661,8 +1572,8 @@ export default function Dashboard() {
                     </div>
 
                     {/* Details */}
-                    <div className="flex-1 pt-2 md:pt-10 lg:pt-16 z-10 flex flex-col items-center md:items-start text-center md:text-left w-full">
-                      <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-4">
+                    <div className="flex-1 pt-2 md:pt-10 lg:pt-16 z-10 flex flex-col items-start text-left w-full">
+                      <div className="flex flex-wrap items-center justify-start gap-2 mb-4">
                         {selectedMovie.rating && (
                           <span className="flex items-center gap-1.5 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1.5 rounded-full text-sm font-bold backdrop-blur-md" title="Média Global (TMDB)">
                             <Star className="w-4 h-4 fill-current" /> {selectedMovie.rating}
@@ -1861,7 +1772,7 @@ export default function Dashboard() {
                                     <Star
                                       className={`w-7 h-7 sm:w-8 sm:h-8 transition-colors ${
                                         isActive
-                                          ? "fill-primary text-primary drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]"
+                                          ? "fill-primary text-primary drop-shadow-[0_0_8px_rgba(225,29,72,0.5)]"
                                           : "text-muted-foreground/30 hover:text-muted-foreground/50"
                                       }`}
                                     />
@@ -1920,7 +1831,7 @@ export default function Dashboard() {
                         <div className="pt-6 sm:pt-8 border-t border-border/50 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
                           <Button 
                             size="lg" 
-                            className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_30px_rgba(249,115,22,0.3)] hover:shadow-[0_0_40px_rgba(249,115,22,0.5)] flex-1 h-12 sm:h-14 text-base sm:text-lg transition-all"
+                            className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_30px_rgba(225,29,72,0.3)] hover:shadow-[0_0_40px_rgba(225,29,72,0.5)] flex-1 h-12 sm:h-14 text-base sm:text-lg transition-all"
                             onClick={() => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(selectedMovie.title + ' trailer')}`, '_blank')}
                           >
                             <PlayCircle className="w-5 h-5 sm:w-6 sm:h-6 mr-2" /> Trailer

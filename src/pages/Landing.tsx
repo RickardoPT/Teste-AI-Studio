@@ -142,10 +142,6 @@ export default function Landing() {
           <nav className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Funcionalidades</a>
             <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Como Funciona</a>
-            <a href="#community" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-              Comunidade
-              <span className="text-[9px] font-bold uppercase tracking-wider bg-primary/20 text-primary px-1.5 py-0.5 rounded-sm">Soon</span>
-            </a>
           </nav>
           <div className="flex items-center gap-4">
             <ThemeToggle />
@@ -153,7 +149,7 @@ export default function Landing() {
               Entrar
             </Link>
             <Link to="/auth">
-              <Button className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground px-6 shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)] transition-all">
+              <Button className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground px-6 shadow-[0_0_20px_rgba(225,29,72,0.3)] hover:shadow-[0_0_30px_rgba(225,29,72,0.5)] transition-all">
                 Começar Grátis
               </Button>
             </Link>
@@ -165,11 +161,12 @@ export default function Landing() {
         {/* Hero Section */}
         <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
           {/* Modern Abstract Background */}
-          <div className="absolute inset-0 z-0 bg-background">
-            <div className="absolute top-0 left-1/4 w-[1000px] h-[600px] bg-primary/10 rounded-full blur-[120px] opacity-70 mix-blend-screen pointer-events-none" />
-            <div className="absolute bottom-0 right-1/4 w-[800px] h-[600px] bg-accent/10 rounded-full blur-[120px] opacity-70 mix-blend-screen pointer-events-none" />
+          <div className="absolute inset-0 z-0 bg-background bg-[url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2025&auto=format&fit=crop')] bg-cover bg-center bg-no-repeat">
+            <div className="absolute inset-0 bg-background/60" /> {/* Mild overlay to ensure text readability */}
+            <div className="absolute top-0 left-1/4 w-[1000px] h-[600px] bg-primary/20 rounded-full blur-[120px] opacity-70 mix-blend-screen pointer-events-none" />
+            <div className="absolute bottom-0 right-1/4 w-[800px] h-[600px] bg-accent/20 rounded-full blur-[120px] opacity-70 mix-blend-screen pointer-events-none" />
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/50 to-background pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background pointer-events-none" />
           </div>
           
           <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -618,23 +615,6 @@ export default function Landing() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* Community Teaser */}
-        <section id="community" className="py-12 bg-primary/5 relative">
-          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent z-10" />
-          <div className="max-w-7xl mx-auto px-6 text-center">
-            <Users className="w-8 h-8 text-primary mx-auto mb-4" />
-            <h2 className="text-2xl md:text-3xl font-display font-bold mb-4">Mais do que recomendações. <br/>Uma comunidade.</h2>
-            <p className="text-base text-muted-foreground max-w-2xl mx-auto mb-6">
-              Estamos a construir um espaço onde podes partilhar listas, discutir teorias e ver o que os teus amigos andam a assistir. Junta-te agora e sê um dos primeiros a experimentar.
-            </p>
-            <Link to="/auth">
-              <Button variant="outline" className="rounded-full border-primary/50 hover:bg-primary hover:text-primary-foreground transition-all">
-                Criar Conta Gratuita <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
           </div>
         </section>
 
