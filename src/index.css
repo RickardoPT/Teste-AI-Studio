@@ -1,29 +1,61 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+:root {
+  --background: #050505;
+  --foreground: #f5f5f5;
+  --primary: #e11d48;
+  --primary-foreground: #ffffff;
+  --secondary: #be123c;
+  --secondary-foreground: #ffffff;
+  --accent: #fb7185;
+  --accent-foreground: #1a1a1a;
+  --muted: #1f1f22;
+  --muted-foreground: #a1a1aa;
+  --card: #0f0f11;
+  --card-foreground: #f5f5f5;
+  --border: #27272a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+}
+
+.light {
+  --background: #f4f4f5; /* Softer off-white background */
+  --foreground: #18181b; /* Softer dark gray text */
+  --primary: #e11d48;
+  --primary-foreground: #ffffff;
+  --secondary: #be123c;
+  --secondary-foreground: #ffffff;
+  --accent: #fb7185;
+  --accent-foreground: #1a1a1a;
+  --muted: #e4e4e7;
+  --muted-foreground: #52525b;
+  --card: #ffffff; /* Pure white cards for contrast */
+  --card-foreground: #18181b;
+  --border: #d4d4d8;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+}
+
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 
-  --color-background: #050505; /* Deep cinematic black */
-  --color-foreground: #f5f5f5;
-  
-  --color-primary: #e11d48; /* Crimson Red - Classic Cinema Vibe */
-  --color-primary-foreground: #ffffff;
-  
-  --color-secondary: #be123c; /* Darker Red */
-  --color-secondary-foreground: #ffffff;
-
-  --color-accent: #fb7185; /* Light Red accent */
-  --color-accent-foreground: #1a1a1a;
-
-  --color-muted: #1f1f22;
-  --color-muted-foreground: #a1a1aa;
-
-  --color-card: #0f0f11;
-  --color-card-foreground: #f5f5f5;
-
-  --color-border: #27272a;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
 }
 
 body {
@@ -33,11 +65,18 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Smooth theme transitions for all elements */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 400ms;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
 }
 
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }

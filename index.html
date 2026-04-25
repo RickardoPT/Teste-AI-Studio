@@ -2,12 +2,43 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#e11d48" />
+    <meta name="description" content="A tua plataforma de descoberta de filmes e séries baseada em IA. Diz-nos o teu mood e nós encontramos o filme perfeito." />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://moodflix.app/" />
+    <meta property="og:title" content="MoodFlix | O teu Mood, o teu Filme" />
+    <meta property="og:description" content="A tua plataforma de descoberta de filmes e séries baseada em IA. Diz-nos o teu mood e nós encontramos o filme perfeito." />
+    <meta property="og:image" content="/icon-512.svg" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://moodflix.app/" />
+    <meta property="twitter:title" content="MoodFlix | O teu Mood, o teu Filme" />
+    <meta property="twitter:description" content="A tua plataforma de descoberta de filmes e séries baseada em IA. Diz-nos o teu mood e nós encontramos o filme perfeito." />
+    <meta property="twitter:image" content="/icon-512.svg" />
+
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icon-192.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.svg" />
+    <title>MoodFlix</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(registration => {
+            console.log('SW registered: ', registration);
+          }).catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+          });
+        });
+      }
+    </script>
   </body>
 </html>
 

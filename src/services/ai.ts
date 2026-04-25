@@ -11,7 +11,7 @@ export interface MovieRecommendation {
   reason: string;
   type: "movie" | "series";
   director?: string;
-  cast?: string[];
+  cast?: any[];
   posterUrl?: string;
   backdropUrl?: string;
   rating?: number;
@@ -20,9 +20,17 @@ export interface MovieRecommendation {
   runtime?: number;
   releaseDate?: string;
   tmdbGenres?: string[];
+  castProfiles?: any[];
+  trailerUrl?: string;
+  similar?: any[];
 }
 
-export async function getRecommendations(mood: string, userHistory?: {title: string, rating?: number}[], filterType?: "all" | "movie" | "series"): Promise<MovieRecommendation[]> {
+export async function getRecommendations(
+  mood: string, 
+  userHistory?: {title: string, rating?: number}[], 
+  filterType?: "all" | "movie" | "series",
+  userPreferences?: { platforms: string[], genres: string[] }
+): Promise<MovieRecommendation[]> {
   let historyContext = "";
   if (userHistory && userHistory.length > 0) {
     const historyStr = userHistory.map(h => `${h.title} (Rated: ${h.rating || 'Unrated'})`).join(', ');
@@ -33,8 +41,18 @@ export async function getRecommendations(mood: string, userHistory?: {title: str
   if (filterType === "movie") filterContext = "movies only";
   if (filterType === "series") filterContext = "series only";
 
+  let preferencesContext = "";
+  if (userPreferences) {
+    if (userPreferences.platforms.length > 0) {
+      preferencesContext += `\n\nIMPORTANT: The user ONLY has access to the following streaming platforms: ${userPreferences.platforms.join(', ')}. Please prioritize titles available on these platforms.`;
+    }
+    if (userPreferences.genres.length > 0) {
+      preferencesContext += `\n\nThe user's favorite genres are: ${userPreferences.genres.join(', ')}. Keep this in mind, but prioritize the current mood.`;
+    }
+  }
+
   const prompt = `Based on the user's current mood: "${mood}", recommend 5 ${filterContext} that perfectly match this vibe. 
-  Provide a mix of well-known and hidden gems. Include the main director (or creator for series) and a list of up to 3 main cast members.${historyContext}`;
+  Provide a mix of well-known and hidden gems. Include the main director (or creator for series) and a list of up to 3 main cast members.${historyContext}${preferencesContext}`;
 
   try {
     const response = await ai.models.generateContent({
