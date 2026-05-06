@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useTheme } from "@/src/hooks/useTheme";
+import { supabase } from "@/src/lib/supabase";
 import { ThemeToggle } from "@/src/components/ThemeToggle";
 import { getRecommendations, MovieRecommendation } from "@/src/services/ai";
 import { enrichWithTMDB, getTrendingMovies } from "@/src/services/tmdb";
@@ -48,6 +49,17 @@ export default function Dashboard() {
     const newWatchlist = [movieWithDate, ...watchlist];
     setWatchlist(newWatchlist);
     
+    if (user) {
+      await supabase.from('movie_watchlist').insert({
+        user_id: user.id,
+        title: movie.title,
+        year: movie.year,
+        genre: movie.genre || null,
+        type: movie.type || null,
+        poster_url: movie.posterUrl || movie.poster || null
+      });
+    }
+    
     if (notificationsEnabled) {
       setNotifications(prev => [{
         id: Date.now().toString(),
@@ -59,7 +71,6 @@ export default function Dashboard() {
       }, ...prev]);
     }
     
-    localStorage.setItem('moodflix_watchlist', JSON.stringify(newWatchlist));
     toast.success(`${movie.title} adicionado à Watchlist!`);
   };
 
@@ -68,7 +79,9 @@ export default function Dashboard() {
     const newWatchlist = watchlist.filter(w => w.title !== title);
     setWatchlist(newWatchlist);
     
-    localStorage.setItem('moodflix_watchlist', JSON.stringify(newWatchlist));
+    if (user) {
+      await supabase.from('movie_watchlist').delete().match({ user_id: user.id, title: title });
+    }
     toast.info(`${title} removido da Watchlist.`);
   };
   const [selectedMovie, setSelectedMovie] = useState<MovieRecommendation | null>(null);
@@ -153,16 +166,35 @@ export default function Dashboard() {
         const trending = await getTrendingMovies();
         setTrendingMovies(trending);
 
-        
-        // Fallback to localStorage
-        const savedHistory = localStorage.getItem('moodflix_history');
-        if (savedHistory) setHistory(JSON.parse(savedHistory));
-        const savedWatchlist = localStorage.getItem('moodflix_watchlist');
-        if (savedWatchlist) setWatchlist(JSON.parse(savedWatchlist));
-        const savedRatings = localStorage.getItem('moodflix_ratings');
-        if (savedRatings) setUserRatings(JSON.parse(savedRatings));
-        const savedComments = localStorage.getItem('moodflix_comments');
-        if (savedComments) setUserComments(JSON.parse(savedComments));
+        // Fetch from Supabase
+        const { data: dbHistory } = await supabase.from('movie_history').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+        if (dbHistory) {
+          setHistory(dbHistory.map((row: any) => ({
+            title: row.title, year: row.year, genre: row.genre, type: row.type, posterUrl: row.poster_url, addedAt: row.created_at
+          })));
+        }
+
+        const { data: dbWatchlist } = await supabase.from('movie_watchlist').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+        if (dbWatchlist) {
+          setWatchlist(dbWatchlist.map((row: any) => ({
+             title: row.title, year: row.year, genre: row.genre, type: row.type, posterUrl: row.poster_url, addedAt: row.created_at
+          })));
+        }
+
+        const { data: dbRatings } = await supabase.from('movie_ratings').select('*').eq('user_id', user.id);
+        if (dbRatings) {
+          const ratingObj: Record<string, number> = {};
+          dbRatings.forEach((row: any) => ratingObj[row.title] = row.rating);
+          setUserRatings(ratingObj);
+        }
+
+        const { data: dbComments } = await supabase.from('movie_comments').select('*').eq('user_id', user.id);
+        if (dbComments) {
+          const commentObj: Record<string, string> = {};
+          dbComments.forEach((row: any) => commentObj[row.title] = row.comment);
+          setUserComments(commentObj);
+        }
+
         const savedSearchHistory = localStorage.getItem('moodflix_search_history');
         if (savedSearchHistory) setSearchHistory(JSON.parse(savedSearchHistory));
       } catch (error) {
@@ -285,7 +317,16 @@ export default function Dashboard() {
     const newHistory = [movieWithDate, ...history.filter(h => h.title !== movie.title)];
     setHistory(newHistory);
     
-    localStorage.setItem('moodflix_history', JSON.stringify(newHistory));
+    if (user && !existing) {
+      await supabase.from('movie_history').insert({
+        user_id: user.id,
+        title: movie.title,
+        year: movie.year,
+        genre: movie.genre || null,
+        type: movie.type || null,
+        poster_url: movie.posterUrl || movie.poster || null
+      });
+    }
     
     if (!existing) {
       if (notificationsEnabled) {
@@ -307,7 +348,9 @@ export default function Dashboard() {
     const newHistory = history.filter(h => h.title !== title);
     setHistory(newHistory);
     
-    localStorage.setItem('moodflix_history', JSON.stringify(newHistory));
+    if (user) {
+      await supabase.from('movie_history').delete().match({ user_id: user.id, title: title });
+    }
     toast.info(`${title} removido do histórico.`);
   };
 
@@ -315,7 +358,9 @@ export default function Dashboard() {
     const newRatings = { ...userRatings, [title]: rating };
     setUserRatings(newRatings);
     
-    localStorage.setItem('moodflix_ratings', JSON.stringify(newRatings));
+    if (user) {
+      await supabase.from('movie_ratings').upsert({ user_id: user.id, title: title, rating: rating }, { onConflict: 'user_id,title' });
+    }
     
     if (!history.some(h => h.title === title) && selectedMovie) {
       addToHistory(selectedMovie);
@@ -328,7 +373,9 @@ export default function Dashboard() {
     const newComments = { ...userComments, [title]: commentInput };
     setUserComments(newComments);
     
-    localStorage.setItem('moodflix_comments', JSON.stringify(newComments));
+    if (user) {
+      await supabase.from('movie_comments').upsert({ user_id: user.id, title: title, comment: commentInput }, { onConflict: 'user_id,title' });
+    }
     
     if (!history.some(h => h.title === title) && selectedMovie) {
       addToHistory(selectedMovie);
@@ -343,7 +390,9 @@ export default function Dashboard() {
     setUserComments(newComments);
     setCommentInput("");
     
-    localStorage.setItem('moodflix_comments', JSON.stringify(newComments));
+    if (user) {
+      await supabase.from('movie_comments').delete().match({ user_id: user.id, title: title });
+    }
     toast.info("Comentário apagado.");
   };
 
@@ -2151,12 +2200,12 @@ export default function Dashboard() {
                   <div>
                     <h3 className="text-lg font-semibold text-foreground mb-2">3. Contas de Utilizador e Dados</h3>
                     <p>
-                      Para utilizar funcionalidades como o "Histórico", "Avaliações" e "Comentários", é necessário criar uma conta.
+                      O MoodFlix funciona com um perfil local guardado diretamente no teu navegador. Não há contas geridas em servidores remotos.
                     </p>
                     <ul className="list-disc pl-5 mt-2 space-y-1">
-                      <li>O utilizador é responsável por manter a confidencialidade das suas credenciais.</li>
-                      <li>Os dados de histórico e avaliações são armazenados para personalizar futuras recomendações.</li>
-                      <li>Reservamo-nos o direito de suspender ou encerrar contas que violem estes termos ou apresentem comportamento abusivo.</li>
+                      <li>O utilizador pode personalizar as informações do seu perfil como nome e fotografia.</li>
+                      <li>Os dados de histórico, watchlists e avaliações são armazenados localmente e nunca são partilhados.</li>
+                      <li>O utilizador pode emular o encerramento da conta, que limpa toda a informação do LocalStorage do navegador.</li>
                     </ul>
                   </div>
 
@@ -2252,7 +2301,7 @@ export default function Dashboard() {
                       Recolhemos apenas os dados estritamente necessários para o funcionamento da plataforma:
                     </p>
                     <ul className="list-disc pl-5 mt-2 space-y-1">
-                      <li><strong>Dados de Autenticação:</strong> Nome, e-mail e foto de perfil (fornecidos pelo Google/Firebase Auth) para gerir a tua sessão.</li>
+                      <li><strong>Dados de Autenticação:</strong> O teu nome, e-mail e foto de perfil, associados à tua conta, ficam guardados através de um perfil local (no teu dispositivo) apenas para o funcionamento da aplicação durante a tua sessão.</li>
                       <li><strong>Dados de Utilização:</strong> Histórico de filmes visualizados, avaliações, comentários e preferências de "mood", guardados localmente (LocalStorage) no teu navegador.</li>
                       <li><strong>Inputs de IA:</strong> Os textos que escreves na barra de pesquisa ("moods"), bem como um resumo do teu histórico e avaliações, são enviados temporariamente para a API do Google Gemini para processar as recomendações. Estes dados <strong>não são utilizados</strong> pela Google para treinar modelos de IA públicos.</li>
                     </ul>
