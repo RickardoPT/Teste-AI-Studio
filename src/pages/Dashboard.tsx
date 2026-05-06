@@ -910,9 +910,9 @@ export default function Dashboard() {
                           </div>
 
                           {/* Content Section */}
-                          <div className="flex flex-col flex-1 p-5">
+                          <div className="flex flex-col flex-1 p-5 min-w-0">
                             <div className="mb-4">
-                              <h3 className="text-2xl font-display font-bold mb-1 group-hover:text-primary transition-colors leading-tight">{rec.title}</h3>
+                              <h3 className="text-2xl font-display font-bold mb-1 group-hover:text-primary transition-colors leading-tight line-clamp-2 break-words text-left">{rec.title}</h3>
                               <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                                 <span>{rec.year}</span>
                                 <span>•</span>
@@ -971,18 +971,18 @@ export default function Dashboard() {
                               </div>
                             ) : null}
 
-                            <div className="mt-4 pt-4 flex flex-col sm:flex-row gap-3">
+                            <div className="mt-4 pt-4 flex flex-wrap gap-2">
                               <Button 
                                 variant="default" 
-                                className="w-full sm:w-1/3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(225,29,72,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 w-full min-w-[120px] rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(225,29,72,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
                                 onClick={() => setSelectedMovie(rec)}
                                 disabled={rec.posterUrl === undefined}
                               >
-                                <Info className="w-4 h-4 mr-2" /> Detalhes
+                                <Info className="w-4 h-4 mr-2 flex-shrink-0" /> Detalhes
                               </Button>
                               <Button 
                                 variant="outline" 
-                                className="w-full sm:w-1/3 rounded-xl border-border/50 hover:bg-primary/10 hover:text-primary hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 w-full min-w-[120px] rounded-xl border-border/50 hover:bg-primary/10 hover:text-primary hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed px-2"
                                 onClick={() => {
                                   if (watchlist.some(w => w.title === rec.title)) {
                                     handleRemoveFromWatchlist({ stopPropagation: () => {} } as any, rec.title);
@@ -993,21 +993,21 @@ export default function Dashboard() {
                                 disabled={rec.posterUrl === undefined}
                               >
                                 {watchlist.some(w => w.title === rec.title) ? (
-                                  <><Check className="w-4 h-4 mr-2" /> Na Watchlist</>
+                                  <><Check className="w-4 h-4 mr-1.5 flex-shrink-0" /> Na Watchlist</>
                                 ) : (
-                                  <><ListPlus className="w-4 h-4 mr-2" /> Watchlist</>
+                                  <><ListPlus className="w-4 h-4 mr-1.5 flex-shrink-0" /> Watchlist</>
                                 )}
                               </Button>
                               <Button 
                                 variant="outline" 
-                                className="w-full sm:w-1/3 rounded-xl border-border/50 hover:bg-primary/10 hover:text-primary hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 w-full min-w-[100px] rounded-xl border-border/50 hover:bg-primary/10 hover:text-primary hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed px-2"
                                 onClick={() => addToHistory(rec)}
                                 disabled={rec.posterUrl === undefined}
                               >
                                 {history.some(h => h.title === rec.title) ? (
-                                  <><Check className="w-4 h-4 mr-2" /> Visto</>
+                                  <><Check className="w-4 h-4 mr-1.5 flex-shrink-0" /> Visto</>
                                 ) : (
-                                  <><History className="w-4 h-4 mr-2" /> Visto</>
+                                  <><History className="w-4 h-4 mr-1.5 flex-shrink-0" /> Visto</>
                                 )}
                               </Button>
                             </div>
@@ -1542,7 +1542,7 @@ export default function Dashboard() {
                   <X className="w-5 h-5" />
                 </button>
 
-                <div className="overflow-y-auto hide-scrollbar flex-1">
+                <div className="overflow-y-auto overflow-x-hidden hide-scrollbar flex-1">
                   {/* Backdrop */}
                   <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-[400px] bg-muted flex-shrink-0">
                     {selectedMovie.backdropUrl ? (
@@ -1572,7 +1572,7 @@ export default function Dashboard() {
                     </div>
 
                     {/* Details */}
-                    <div className="flex-1 pt-2 md:pt-10 lg:pt-16 z-10 flex flex-col items-start text-left w-full">
+                    <div className="flex-1 pt-2 md:pt-10 lg:pt-16 z-10 flex flex-col items-start text-left min-w-0 w-full md:w-auto">
                       <div className="flex flex-wrap items-center justify-start gap-2 mb-4">
                         {selectedMovie.rating && (
                           <span className="flex items-center gap-1.5 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-1.5 rounded-full text-sm font-bold backdrop-blur-md" title="Média Global (TMDB)">
@@ -1597,7 +1597,7 @@ export default function Dashboard() {
                         </span>
                       </div>
                       
-                      <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 md:mb-8 leading-[1.1] tracking-tight text-foreground drop-shadow-lg">{selectedMovie.title}</h2>
+                      <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 md:mb-8 leading-[1.1] tracking-tight text-foreground drop-shadow-lg break-words w-full">{selectedMovie.title}</h2>
 
                       <div className="space-y-6 md:space-y-8 w-full">
                         {/* Director & Cast */}
@@ -1684,9 +1684,9 @@ export default function Dashboard() {
                         {selectedMovie.castProfiles && selectedMovie.castProfiles.length > 0 && (
                           <div className="text-left w-full mt-8">
                             <h3 className="text-xl font-display font-semibold mb-3 text-foreground/90">Elenco Principal</h3>
-                            <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar snap-x">
+                            <div className="flex flex-wrap gap-4 pb-4">
                               {selectedMovie.castProfiles.map((actor, idx) => (
-                                <div key={idx} className="flex flex-col items-center gap-2 min-w-[100px] snap-start">
+                                <div key={idx} className="flex flex-col items-center gap-2 min-w-[100px] w-[100px]">
                                   <div className="w-20 h-20 rounded-full overflow-hidden bg-muted border-2 border-border/50 shadow-md">
                                     {actor.profilePath ? (
                                       <img 
@@ -1715,11 +1715,11 @@ export default function Dashboard() {
                         {selectedMovie.similar && selectedMovie.similar.length > 0 && (
                           <div className="text-left w-full mt-8">
                             <h3 className="text-xl font-display font-semibold mb-3 text-foreground/90">Títulos Semelhantes</h3>
-                            <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar snap-x">
+                            <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4 pb-4">
                               {selectedMovie.similar.map((similar, idx) => (
                                 <div 
                                   key={idx} 
-                                  className="min-w-[140px] max-w-[140px] snap-start group cursor-pointer"
+                                  className="group cursor-pointer"
                                   onClick={() => {
                                     setSelectedMovie(null);
                                     setMood(`Quero ver algo parecido com ${similar.title}`);
@@ -2046,18 +2046,6 @@ export default function Dashboard() {
                           <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${notificationsEnabled ? 'right-1' : 'left-1'}`} />
                         </div>
                       </div>
-                      <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                        <div className="flex items-center gap-3">
-                          <Moon className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">Tema Escuro</span>
-                        </div>
-                        <div 
-                          className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${theme === 'dark' ? 'bg-primary' : 'bg-muted-foreground/30'}`}
-                          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                        >
-                          <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${theme === 'dark' ? 'right-1' : 'left-1'}`} />
-                        </div>
-                      </div>
                     </div>
                   </section>
 
@@ -2153,6 +2141,7 @@ export default function Dashboard() {
                     </p>
                     <ul className="list-disc pl-5 mt-2 space-y-1">
                       <li>O MoodFlix utiliza sistemas de Inteligência Artificial (modelos Google Gemini) para processar os estados de espírito descritos e gerar recomendações de filmes e séries.</li>
+                      <li>Para fornecer <strong>recomendações personalizadas e inteligentes</strong>, a IA analisa informações guardadas no teu navegador (como o teu histórico recente de filmes e as tuas avaliações) a fim de compreender os teus gostos.</li>
                       <li>As recomendações são <strong>geradas de forma automatizada</strong> e não envolvem intervenção humana direta na seleção.</li>
                       <li>A IA pode ocasionalmente gerar informações imprecisas, "alucinações" ou sugerir títulos que não correspondam perfeitamente ao solicitado. O utilizador deve usar o seu próprio critério.</li>
                       <li>O sistema não toma decisões que afetem os direitos fundamentais, saúde ou segurança dos utilizadores (considerado sistema de risco mínimo).</li>
@@ -2264,8 +2253,8 @@ export default function Dashboard() {
                     </p>
                     <ul className="list-disc pl-5 mt-2 space-y-1">
                       <li><strong>Dados de Autenticação:</strong> Nome, e-mail e foto de perfil (fornecidos pelo Google/Firebase Auth) para gerir a tua sessão.</li>
-                      <li><strong>Dados de Utilização:</strong> Histórico de filmes visualizados, avaliações, comentários e preferências de "mood", guardados localmente (LocalStorage) ou na nossa base de dados segura.</li>
-                      <li><strong>Inputs de IA:</strong> Os textos que escreves na barra de pesquisa ("moods") são enviados para a API do Google Gemini para processamento. Estes dados <strong>não são utilizados</strong> para treinar modelos de IA públicos.</li>
+                      <li><strong>Dados de Utilização:</strong> Histórico de filmes visualizados, avaliações, comentários e preferências de "mood", guardados localmente (LocalStorage) no teu navegador.</li>
+                      <li><strong>Inputs de IA:</strong> Os textos que escreves na barra de pesquisa ("moods"), bem como um resumo do teu histórico e avaliações, são enviados temporariamente para a API do Google Gemini para processar as recomendações. Estes dados <strong>não são utilizados</strong> pela Google para treinar modelos de IA públicos.</li>
                     </ul>
                   </div>
 
