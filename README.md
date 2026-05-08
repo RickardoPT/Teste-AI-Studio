@@ -1,20 +1,49 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Teste-AI-Studio
 
-# Run and deploy your AI Studio app
+App web para recomendações de filmes/séries por mood, com autenticação Supabase e enriquecimento de metadados via TMDB.
 
-This contains everything you need to run your app locally.
+## Stack
+- React + Vite + TypeScript
+- Supabase (Auth + profiles)
+- TMDB API (posters, detalhes)
+- Gemini API (recomendações) via endpoint **server-side**
 
-View your app in AI Studio: https://ai.studio/apps/a345ec69-dfff-44a1-8f2a-10643be60029
+## Segurança (importante)
+A chave Gemini **não é usada no frontend**.
+As recomendações passam por `POST /api/recommendations` e a `GEMINI_API_KEY` fica apenas no servidor.
 
-## Run Locally
+## Variáveis de ambiente
+Copiar `.env.example` e preencher:
 
-**Prerequisites:**  Node.js
+### Frontend
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `VITE_TMDB_API_KEY` (opcional)
 
+### Server-only
+- `GEMINI_API_KEY`
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Correr localmente
+1. Instalar dependências:
+   ```bash
+   npm install
+   ```
+2. Criar `.env` (ou configurar env no provider de deploy).
+3. Iniciar:
+   ```bash
+   npm run dev
+   ```
+
+## Deploy (preview/produção)
+Recomendado: Vercel.
+
+- `vercel.json` já incluído para suportar:
+  - rotas API (`/api/*`)
+  - fallback SPA para `index.html`
+
+## Checklist rápida pré-lançamento
+- [ ] signup/login/logout OK
+- [ ] dashboard carrega sem erros
+- [ ] geração de recomendações OK
+- [ ] fallback quando API falha (sem crash)
+- [ ] env vars de produção configuradas

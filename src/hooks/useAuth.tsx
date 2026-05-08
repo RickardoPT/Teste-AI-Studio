@@ -69,9 +69,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: data?.name || authUser.email?.split('@')[0] || 'Utilizador',
         avatar_url: data?.avatar_url,
         preferences: {
-          platforms: data?.preferred_platforms || [],
-          genres: data?.preferred_genres || [],
-          onboardingCompleted: !!(data?.preferred_platforms || data?.preferred_genres)
+          platforms: Array.isArray(data?.preferred_platforms) ? data.preferred_platforms : [],
+          genres: Array.isArray(data?.preferred_genres) ? data.preferred_genres : [],
+          onboardingCompleted:
+            (Array.isArray(data?.preferred_platforms) && data.preferred_platforms.length > 0) ||
+            (Array.isArray(data?.preferred_genres) && data.preferred_genres.length > 0)
         }
       });
     } catch (err) {
